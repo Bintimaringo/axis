@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Axis — Financial Decision Stabilization</title>
+  <style>
+    :root {
+      --bg: #F6F4EF;
+      --surface: #FFFFFF;
+      --surface-2: #F0EDE7;
+      --text: #1A1714;
+      --text-2: #7A736C;
+      --accent: #A84A04;
+      --accent-light: #FCE8D8;
+      --green: #155E38;
+      --green-light: #D6F0E2;
+      --amber: #8A4800;
+      --amber-light: #FEF0CC;
+      --red: #8B1515;
+      --red-light: #FDDEDE;
+      --border: #E4E0D8;
+      --radius: 8px;
+      --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      background: var(--text);
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-brand h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .header-brand p  { font-size: 11px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+    .header-disclaimer {
+      font-size: 11px;
+      padding: 5px 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      color: rgba(255,255,255,0.6);
+      white-space: nowrap;
+    }
+
+    /* ── Layout ─────────────────────────────────────────── */
+    main { max-width: 980px; margin: 0 auto; padding: 36px 24px 60px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-2);
+      margin-bottom: 18px;
+    }
+
+    /* ── Form ───────────────────────────────────────────── */
+    label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+
+    .field-hint { font-size: 11px; color: var(--text-2); margin-top: 4px; }
+
+    textarea, input[type="number"], select {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+
+    textarea { min-height: 130px; resize: vertical; }
+
+    textarea:focus, input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #fff;
+    }
+
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    /* ── Risk cards ─────────────────────────────────────── */
+    .risk-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+
+    .risk-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+
+    .risk-card:hover { border-color: var(--text-2); }
+    .risk-card.selected { border-color: var(--accent); background: var(--accent-light); }
+    .risk-card-label { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .risk-card-desc  { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+    .risk-card.selected .risk-card-label { color: var(--accent); }
+    .risk-card.selected .risk-card-desc  { color: var(--accent); opacity: 0.75; }
+
+    /* ── Buttons ─────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-primary  { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #8E3E02; }
+    .btn-outline  { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { background: var(--surface-2); }
+    .btn-ghost    { background: transparent; color: var(--text-2); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--surface-2); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+    .btn-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 20px; }
+
+    /* ── Loading ─────────────────────────────────────────── */
+    #loading { text-align: center; padding: 72px 24px; }
+
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-step { font-size: 14px; color: var(--text-2); }
+
+    /* ── Error ───────────────────────────────────────────── */
+    #error-box {
+      background: var(--red-light);
+      color: var(--red);
+      border: 1px solid #F5B4B4;
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    /* ── Result cards ────────────────────────────────────── */
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 24px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.1s;
+    }
+
+    .result-header:hover { background: var(--surface-2); }
+    .result-header.open  { border-bottom-color: var(--border); }
+
+    .result-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: var(--text-2);
+    }
+
+    .toggle-icon { font-size: 11px; color: var(--text-2); transition: transform 0.2s; }
+    .toggle-icon.open { transform: rotate(90deg); }
+
+    .result-body { padding: 24px; }
+
+    /* ── Executive Snapshot ──────────────────────────────── */
+    .snapshot-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+
+    .snapshot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .snapshot-title-block h2 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    .snapshot-title-block p {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 3px;
+    }
+
+    .vol-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .vol-pill-score {
+      font-size: 40px;
+      font-weight: 700;
+      font-family: var(--mono);
+      line-height: 1;
+    }
+
+    .vol-pill-label {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .vol-pill.low    .vol-pill-score { color: var(--green); }
+    .vol-pill.medium .vol-pill-score { color: var(--amber); }
+    .vol-pill.high   .vol-pill-score { color: var(--red); }
+    .vol-pill.low    .vol-pill-label { background: var(--green-light); color: var(--green); }
+    .vol-pill.medium .vol-pill-label { background: var(--amber-light); color: var(--amber); }
+    .vol-pill.high   .vol-pill-label { background: var(--red-light); color: var(--red); }
+
+    .snapshot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .snapshot-tile {
+      background: var(--surface-2);
+      border-radius: 6px;
+      padding: 14px 16px;
+    }
+
+    .snapshot-tile-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+
+    .snapshot-tile-value { font-size: 14px; line-height: 1.5; }
+
+    .snapshot-plain {
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+
+    .snapshot-plain-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-2);
+      margin-bottom: 10px;
+    }
+
+    .snapshot-plain ul { list-style: none; }
+
+    .snapshot-plain ul li {
+      position: relative;
+      padding: 5px 0 5px 16px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .snapshot-plain ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 13px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* ── Badges ─────────────────────────────────────────── */
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+    .badge-accent  { background: var(--accent-light); color: var(--accent); }
+    .badge-green   { background: var(--green-light); color: var(--green); }
+    .badge-amber   { background: var(--amber-light); color: var(--amber); }
+    .badge-red     { background: var(--red-light); color: var(--red); }
+    .badge-neutral { background: var(--surface-2); color: var(--text-2); }
+
+    /* ── Variables grid ─────────────────────────────────── */
+    .vars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+
+    .var-tile { background: var(--surface-2); border-radius: 6px; padding: 14px 16px; }
+    .var-tile-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-2); margin-bottom: 5px; }
+    .var-tile-value { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .var-tile-value.null-val { font-size: 13px; color: var(--text-2); font-weight: 400; font-family: var(--font); }
+
+    /* ── Lists ──────────────────────────────────────────── */
+    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-2); margin: 20px 0 8px; }
+
+    .info-list { list-style: none; }
+    .info-list li { position: relative; padding: 7px 0 7px 18px; font-size: 14px; border-bottom: 1px solid var(--border); }
+    .info-list li:last-child { border-bottom: none; }
+    .info-list li::before { content: ''; position: absolute; left: 0; top: 15px; width: 6px; height: 6px; border-radius: 50%; background: var(--text-2); }
+    .info-list.pros   li::before { background: var(--green); }
+    .info-list.cons   li::before { background: var(--red); }
+    .info-list.action li::before { background: var(--accent); }
+    .info-list.warn   li::before { background: var(--amber); }
+
+    .meta-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .goal-text  { font-size: 15px; line-height: 1.6; margin-bottom: 4px; }
+
+    /* ── Trade-off ──────────────────────────────────────── */
+    .dimension-item { margin-bottom: 14px; }
+    .dim-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+    .dim-header strong { font-weight: 600; }
+    .dim-header .wt { color: var(--accent); font-weight: 600; font-family: var(--mono); }
+    .bar-bg  { height: 5px; background: var(--border); border-radius: 3px; margin-bottom: 4px; }
+    .bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.6s ease; }
+    .dim-notes { font-size: 12px; color: var(--text-2); }
+
+    .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin: 20px 0; }
+
+    .option-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .option-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+
+    .score-row { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 5px; }
+    .score-row .sr-label { flex: 0 0 130px; color: var(--text-2); }
+    .score-row .sr-num   { flex: 0 0 32px; text-align: right; font-family: var(--mono); font-weight: 600; }
+    .score-bg   { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
+    .score-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.5s; }
+
+    .option-summary { font-size: 13px; color: var(--text-2); font-style: italic; border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px; }
+    .rec-note { font-size: 12px; color: var(--text-2); background: var(--surface-2); padding: 12px 14px; border-radius: 6px; margin-top: 16px; }
+
+    /* ── Volatility ─────────────────────────────────────── */
+    .vol-header { display: flex; align-items: center; gap: 20px; margin-bottom: 8px; }
+
+    .vol-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .vol-circle .vc-num  { font-size: 28px; font-weight: 700; font-family: var(--mono); line-height: 1; }
+    .vol-circle .vc-sub  { font-size: 10px; opacity: 0.65; margin-top: 2px; }
+    .vol-circle.low      { background: var(--green-light); color: var(--green); }
+    .vol-circle.medium   { background: var(--amber-light); color: var(--amber); }
+    .vol-circle.high     { background: var(--red-light); color: var(--red); }
+
+    .vol-bar-wrap { flex: 1; }
+    .vol-bar-label { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    .vol-bar-bg    { height: 8px; background: var(--border); border-radius: 4px; }
+    .vol-bar-fill  { height: 100%; border-radius: 4px; transition: width 0.6s; }
+    .vol-bar-fill.low    { background: var(--green); }
+    .vol-bar-fill.medium { background: var(--amber); }
+    .vol-bar-fill.high   { background: var(--red); }
+
+    .vol-humanize { font-size: 12px; color: var(--text-2); font-style: italic; margin-top: 10px; margin-bottom: 20px; }
+
+    /* Bias section with toggle */
+    .bias-section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 8px; }
+    .bias-section-header .section-label { margin: 0; }
+
+    .toggle-view-btn {
+      font-size: 11px;
+      color: var(--text-2);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 10px;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+
+    .toggle-view-btn:hover { background: var(--surface-2); }
+
+    .bias-cloud { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+
+    .bias-tag { font-size: 12px; padding: 4px 10px; background: var(--amber-light); color: var(--amber); border-radius: 20px; font-weight: 500; }
+
+    .contra-block { background: var(--surface-2); border-radius: 6px; padding: 16px; margin-bottom: 12px; }
+    .contra-stmts { margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .cs-a, .cs-b { font-size: 13px; font-style: italic; padding: 8px 12px; border-radius: 4px; }
+    .cs-a { background: rgba(188, 120, 0, 0.08); }
+    .cs-b { background: rgba(188, 120, 0, 0.15); }
+    .contra-why { font-size: 12px; color: var(--text-2); border-top: 1px solid var(--border); padding-top: 10px; }
+
+    .human-item { padding: 14px 16px; background: var(--surface-2); border-radius: 6px; border-left: 3px solid var(--accent); margin-bottom: 10px; }
+    .human-item .hi-decision { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+    .human-item .hi-why      { font-size: 12px; color: var(--text-2); }
+
+    /* ── Scenarios ──────────────────────────────────────── */
+    .scenarios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    .scenario-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .scenario-card.conservative { border-top: 3px solid var(--amber); }
+    .scenario-card.base         { border-top: 3px solid var(--text-2); }
+    .scenario-card.optimistic   { border-top: 3px solid var(--green); }
+
+    .scenario-card h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px; }
+    .scenario-card.conservative h4 { color: var(--amber); }
+    .scenario-card.base         h4 { color: var(--text-2); }
+    .scenario-card.optimistic   h4 { color: var(--green); }
+
+    .sf { margin-bottom: 12px; }
+    .sf strong { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-2); display: block; margin-bottom: 3px; }
+    .sf p { font-size: 13px; }
+
+    .breaks-box { font-size: 12px; padding: 9px 12px; background: var(--red-light); color: var(--red); border-radius: 4px; margin-top: 12px; }
+    .breaks-box strong { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+
+    /* ── Inline gate (before final summary) ─────────────── */
+    .gate-inline-card {
+      background: #F5F0E4;
+      border: 1.5px solid #C8BFA8;
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      margin: 40px 0;
+    }
+
+    .gate-inline-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+
+    .gate-inline-sub {
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .gate-meta { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; font-size: 13px; }
+    .gate-meta span strong { font-weight: 600; }
+
+    .gate-stop-note {
+      font-size: 13px;
+      color: var(--text-2);
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .gate-confirm-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-2);
+    }
+
+    .gate-confirm-row input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .gate-confirm-row label { font-size: 14px; cursor: pointer; margin: 0; }
+
+    .gate-confirmed-note {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--green);
+      font-weight: 500;
+      display: none;
+    }
+
+    /* ── Final summary ───────────────────────────────────── */
+    .action-box { background: var(--accent-light); border: 1px solid #F0C4A0; border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .action-box strong { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); display: block; margin-bottom: 8px; }
+
+    /* ── Drift ──────────────────────────────────────────── */
+    .drift-indicator { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
+    .drift-indicator.yes { background: var(--amber-light); color: var(--amber); }
+    .drift-indicator.no  { background: var(--green-light); color: var(--green); }
+
+    table.drift-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+    .drift-table th { text-align: left; padding: 8px 12px; background: var(--surface-2); font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-2); }
+    .drift-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .drift-table tr:last-child td { border-bottom: none; }
+
+    .drift-stat { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+    .drift-stat-item { background: var(--surface-2); border-radius: 6px; padding: 14px; }
+    .drift-stat-item strong { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-2); display: block; margin-bottom: 5px; }
+    .drift-stat-item p { font-size: 13px; }
+
+    /* ── Result action bar ───────────────────────────────── */
+    .action-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 32px 0 16px;
+    }
+
+    .export-group { position: relative; display: flex; }
+
+    .export-main {
+      border-radius: 6px 0 0 6px !important;
+      border-right: 1px solid rgba(255,255,255,0.2) !important;
+    }
+
+    .export-caret {
+      border-radius: 0 6px 6px 0 !important;
+      padding: 10px 12px !important;
+      font-size: 11px !important;
+    }
+
+    .export-dropdown {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 4px 20px rgba(26, 23, 20, 0.10);
+      min-width: 220px;
+      z-index: 200;
+      overflow: hidden;
+    }
+
+    .export-dropdown button {
+      display: block;
+      width: 100%;
+      padding: 11px 16px;
+      text-align: left;
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text);
+      cursor: pointer;
+      line-height: 1.4;
+    }
+
+    .export-dropdown button:last-child { border-bottom: none; }
+    .export-dropdown button:hover { background: var(--surface-2); }
+
+    /* ── Responsive ─────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .three-col, .risk-cards, .scenarios-grid, .snapshot-grid, .drift-stat { grid-template-columns: 1fr; }
+      header { flex-direction: column; align-items: flex-start; }
+      .header-disclaimer { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <h1>Axis</h1>
+    <p>Financial Decision Stabilization Layer</p>
+  </div>
+  <span class="header-disclaimer">Not financial advice. Decision support only.</span>
+</header>
+
+<main>
+
+  <!-- ── Form ─────────────────────────────────────────────── -->
+  <div id="form-section">
+    <form id="analysis-form" novalidate>
+
+      <div class="card">
+        <div class="card-label">Decision Narrative</div>
+        <label for="narrative">Describe the financial decision you're facing in plain language.</label>
+        <p class="field-hint" style="margin-bottom: 10px;">Focus on trade-offs, constraints, and what feels uncertain.</p>
+        <textarea id="narrative" name="decision_narrative" placeholder="e.g. I'm considering leaving a stable $130k role to join a startup at $90k + equity. I have $40k saved and monthly expenses around $4,000. The move could accelerate long-term upside but reduces near-term stability." required></textarea>
+
+        <div style="margin-top: 20px; margin-bottom: 14px;">
+          <div class="card-label" style="margin-bottom: 4px;">Optional Precision Inputs</div>
+          <p class="field-hint">Provide exact figures if you want the analysis calibrated to specific numbers. If left blank, Axis will infer from your narrative.</p>
+        </div>
+
+        <div class="three-col">
+          <div>
+            <label for="monthly_burn">Monthly expenses ($)</label>
+            <input type="number" id="monthly_burn" name="monthly_burn" placeholder="e.g. 4200" min="0" step="100">
+            <p class="field-hint">What you spend each month. Used to model runway stability.</p>
+          </div>
+          <div>
+            <label for="runway_months">Financial runway (months)</label>
+            <input type="number" id="runway_months" name="runway_months" placeholder="e.g. 9" min="0" step="0.5">
+            <p class="field-hint">How long you can sustain current spending.</p>
+          </div>
+          <div>
+            <label for="income_delta">Income change ($/yr)</label>
+            <input type="number" id="income_delta" name="income_delta" placeholder="e.g. -40000" step="1000">
+            <p class="field-hint">Difference in annual income if you switch roles. Negative if earning less, positive if earning more.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Risk Declaration</div>
+        <p style="font-size:13px; color: var(--text-2); margin-bottom:4px;">
+          Your risk declaration shapes how volatility is interpreted.
+        </p>
+        <p style="font-size:13px; color: var(--text-2); margin-bottom:16px;">
+          AI will not make final decisions — this gate is intentional.
+        </p>
+
+        <input type="hidden" id="risk_level" name="risk_tolerance_level" value="Medium">
+
+        <div class="risk-cards">
+          <div class="risk-card" data-value="Low" onclick="selectRisk(this)">
+            <div class="risk-card-label">Low</div>
+            <div class="risk-card-desc">I need stability. I can't afford significant loss or income disruption right now.</div>
+          </div>
+          <div class="risk-card selected" data-value="Medium" onclick="selectRisk(this)">
+            <div class="risk-card-label">Medium</div>
+            <div class="risk-card-desc">I can absorb some setbacks, but I have limits. I need a clear recovery path.</div>
+          </div>
+          <div class="risk-card" data-value="High" onclick="selectRisk(this)">
+            <div class="risk-card-label">High</div>
+            <div class="risk-card-desc">I'm willing to accept significant downside in exchange for meaningful upside.</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px;">
+          <input type="number" id="downside_limit" name="downside_limit" placeholder="Maximum acceptable loss ($)" min="0" step="1000" style="width: 270px;">
+          <p class="field-hint" style="margin-top: 6px;">The most you could lose and still be okay</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Prior Decision Log (Optional)</div>
+        <p style="font-size:13px; color: var(--text-2); margin-bottom:14px;">
+          Upload a previous Axis export to compare decisions over time and detect drift in your values and risk profile.
+        </p>
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <input type="file" id="prior_log_file" name="prior_log_file" accept=".json">
+          <button type="button" class="btn btn-ghost" onclick="downloadSamplePrior()">Download sample prior log</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary" id="submit-btn">Analyze decision →</button>
+        <span style="font-size:12px; color: var(--text-2);">6 AI calls · 30–60 seconds</span>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- ── Loading ──────────────────────────────────────────── -->
+  <div id="loading" style="display:none;">
+    <div class="spinner"></div>
+    <div class="loading-step" id="loading-msg">Extracting decision variables...</div>
+  </div>
+
+  <!-- ── Error ────────────────────────────────────────────── -->
+  <div id="error-box" style="display:none;"></div>
+
+  <!-- ── Results ──────────────────────────────────────────── -->
+  <div id="results" style="display:none;">
+
+    <!-- 1. Executive Snapshot — always expanded, first -->
+    <div class="snapshot-card" id="rc-snapshot">
+      <div id="rb-snapshot"></div>
+    </div>
+
+    <!-- 2. Deep sections — collapsed by default -->
+    <div class="result-card" id="rc-extraction">
+      <div class="result-header" onclick="toggleSection('extraction')">
+        <span class="result-title">Extracted Variables</span>
+        <span class="toggle-icon" id="ti-extraction">▸</span>
+      </div>
+      <div class="result-body" id="rb-extraction" style="display:none;"></div>
+    </div>
+
+    <div class="result-card" id="rc-tradeoff">
+      <div class="result-header" onclick="toggleSection('tradeoff')">
+        <span class="result-title">Trade-Off Model</span>
+        <span class="toggle-icon" id="ti-tradeoff">▸</span>
+      </div>
+      <div class="result-body" id="rb-tradeoff" style="display:none;"></div>
+    </div>
+
+    <div class="result-card" id="rc-volatility">
+      <div class="result-header" onclick="toggleSection('volatility')">
+        <span class="result-title">Volatility &amp; Contradictions</span>
+        <span class="toggle-icon" id="ti-volatility">▸</span>
+      </div>
+      <div class="result-body" id="rb-volatility" style="display:none;"></div>
+    </div>
+
+    <div class="result-card" id="rc-scenarios">
+      <div class="result-header" onclick="toggleSection('scenarios')">
+        <span class="result-title">Scenario Simulation</span>
+        <span class="toggle-icon" id="ti-scenarios">▸</span>
+      </div>
+      <div class="result-body" id="rb-scenarios" style="display:none;"></div>
+    </div>
+
+    <div class="result-card" id="rc-drift" style="display:none;">
+      <div class="result-header" onclick="toggleSection('drift')">
+        <span class="result-title">Drift Comparison</span>
+        <span class="toggle-icon" id="ti-drift">▸</span>
+      </div>
+      <div class="result-body" id="rb-drift" style="display:none;"></div>
+    </div>
+
+    <!-- 3. Inline gate — always visible, before final summary -->
+    <div class="gate-inline-card" id="rc-gate-inline">
+      <div id="rb-gate-inline"></div>
+    </div>
+
+    <!-- 4. Final summary — hidden until gate confirmed -->
+    <div class="result-card" id="rc-summary" style="display:none;">
+      <div class="result-header" onclick="toggleSection('summary')">
+        <span class="result-title">Final Summary</span>
+        <span class="toggle-icon open" id="ti-summary">▸</span>
+      </div>
+      <div class="result-body" id="rb-summary"></div>
+    </div>
+
+    <!-- 5. Action bar — anchored conclusion -->
+    <div class="action-bar">
+      <div class="export-group">
+        <button class="btn btn-primary export-main" onclick="exportReadable()">Export Decision Summary</button>
+        <button class="btn btn-primary export-caret" onclick="toggleExportDropdown(event)" aria-label="More export options">▾</button>
+        <div class="export-dropdown" id="export-dropdown" style="display:none;">
+          <button onclick="exportLog()">Full Decision Log (JSON)</button>
+          <button onclick="exportMarkdown()">Markdown (.md)</button>
+        </div>
+      </div>
+      <button class="btn btn-ghost" onclick="resetForm()">New Analysis</button>
+    </div>
+
+  </div>
+
+<script>
+  // ── State ────────────────────────────────────────────────
+  let currentLog = null;
+  let biasViewRaw = false;   // false = show plain language, true = show canonical
+
+  // ── Risk card selection ──────────────────────────────────
+  function selectRisk(el) {
+    document.querySelectorAll('.risk-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('risk_level').value = el.dataset.value;
+  }
+
+  // ── Form submit ──────────────────────────────────────────
+  document.getElementById('analysis-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const narrative = document.getElementById('narrative').value.trim();
+    if (!narrative) { showError('Please enter a decision narrative.'); return; }
+
+    const formData = new FormData();
+    formData.append('decision_narrative', narrative);
+
+    const burn   = document.getElementById('monthly_burn').value;
+    const runway = document.getElementById('runway_months').value;
+    const delta  = document.getElementById('income_delta').value;
+    if (burn)   formData.append('monthly_burn', burn);
+    if (runway) formData.append('runway_months', runway);
+    if (delta)  formData.append('income_delta', delta);
+
+    formData.append('risk_tolerance_level', document.getElementById('risk_level').value);
+    formData.append('downside_limit', document.getElementById('downside_limit').value || '0');
+    // human_gate_confirmed always false — confirmed client-side after render
+
+    const fileInput = document.getElementById('prior_log_file');
+    if (fileInput.files.length > 0) formData.append('prior_log_file', fileInput.files[0]);
+
+    setLoading(true);
+    hideError();
+
+    try {
+      const res = await fetch('/api/analyze', { method: 'POST', body: formData });
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server error ${res.status} — check terminal logs for details.`);
+      }
+      if (!res.ok) throw new Error(data.detail || `Server error ${res.status}`);
+
+      currentLog = data;
+      biasViewRaw = false;
+      renderResults(data);
+    } catch (err) {
+      showError(err.message || 'Analysis failed. Check your API key and try again.');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  // ── Loading ──────────────────────────────────────────────
+  const loadingMessages = [
+    'Extracting decision variables...',
+    'Building trade-off model...',
+    'Analyzing volatility and contradictions...',
+    'Running scenario simulations...',
+    'Synthesizing plain-language snapshot...',
+    'Composing final summary...',
+  ];
+  let loadingTimer = null;
+  let loadingIdx = 0;
+
+  function setLoading(on) {
+    document.getElementById('form-section').style.display = on ? 'none' : 'block';
+    document.getElementById('loading').style.display = on ? 'block' : 'none';
+    if (on) document.getElementById('results').style.display = 'none';
+    document.getElementById('submit-btn').disabled = on;
+
+    if (on) {
+      loadingIdx = 0;
+      document.getElementById('loading-msg').textContent = loadingMessages[0];
+      loadingTimer = setInterval(() => {
+        loadingIdx = (loadingIdx + 1) % loadingMessages.length;
+        document.getElementById('loading-msg').textContent = loadingMessages[loadingIdx];
+      }, 4000);
+    } else {
+      clearInterval(loadingTimer);
+    }
+  }
+
+  // ── Error ────────────────────────────────────────────────
+  function showError(msg) {
+    const box = document.getElementById('error-box');
+    box.textContent = msg;
+    box.style.display = 'block';
+    document.getElementById('form-section').style.display = 'block';
+  }
+
+  function hideError() { document.getElementById('error-box').style.display = 'none'; }
+
+  // ── Toggle ───────────────────────────────────────────────
+  function toggleSection(id) {
+    const body   = document.getElementById('rb-' + id);
+    const icon   = document.getElementById('ti-' + id);
+    const header = body.previousElementSibling;
+    const open   = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    icon.classList.toggle('open', !open);
+    if (header) header.classList.toggle('open', !open);
+  }
+
+  // ── Helpers ──────────────────────────────────────────────
+  function h(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function fmtNum(val, prefix, suffix) {
+    if (val === null || val === undefined) return null;
+    const n = parseFloat(val);
+    if (isNaN(n)) return null;
+    const abs = Math.abs(n);
+    const sign = n < 0 ? '−' : '';
+    return sign + (prefix || '') + (abs >= 1000 ? abs.toLocaleString() : abs) + (suffix || '');
+  }
+
+  function renderList(items, cls) {
+    if (!items || !items.length) return '';
+    return `<ul class="info-list ${cls || ''}">${items.map(i => `<li>${h(i)}</li>`).join('')}</ul>`;
+  }
+
+  function renderLabeledList(label, items, cls) {
+    if (!items || !items.length) return '';
+    return `<div class="section-label">${h(label)}</div>${renderList(items, cls)}`;
+  }
+
+  function volTier(score) {
+    return score <= 30 ? 'low' : score <= 60 ? 'medium' : 'high';
+  }
+
+  // ── Render all ───────────────────────────────────────────
+  function renderResults(data) {
+    const log = data.decision_log;
+
+    renderExecutiveSnapshot(log.executive_snapshot);
+    renderExtraction(log.extraction);
+    renderTradeoff(log.tradeoff_model);
+    renderVolatility(log.volatility_report);
+    renderScenarios(log.scenario_simulation);
+
+    if (data.drift_report) {
+      renderDrift(data.drift_report);
+      document.getElementById('rc-drift').style.display = 'block';
+    }
+
+    renderGateInline(log.human_boundary_gate);
+    renderSummary(log.final_summary);
+
+    document.getElementById('rc-summary').style.display = 'none'; // hidden until confirmed
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Executive Snapshot ───────────────────────────────────
+  function renderExecutiveSnapshot(s) {
+    const score = s.volatility_score || 0;
+    const tier  = volTier(score);
+
+    const tiles = [
+      { label: 'Primary Tension',           value: s.primary_tension },
+      { label: 'Highest Optionality Path',  value: s.highest_optionality_path },
+      { label: 'Most Dangerous Assumption', value: s.most_dangerous_assumption },
+      { label: 'What Breaks First',         value: s.what_breaks_first },
+    ].map(t => `
+      <div class="snapshot-tile">
+        <div class="snapshot-tile-label">${h(t.label)}</div>
+        <div class="snapshot-tile-value">${h(t.value)}</div>
+      </div>
+    `).join('');
+
+    const bullets = (s.what_this_means_in_plain_language || [])
+      .map(b => `<li>${h(b)}</li>`).join('');
+
+    document.getElementById('rb-snapshot').innerHTML = `
+      <div class="snapshot-header">
+        <div class="snapshot-title-block">
+          <h2>Executive Snapshot</h2>
+          <p>Axis performs structured modeling under the hood. This section surfaces what matters first.</p>
+        </div>
+        <div class="vol-pill ${tier}">
+          <div class="vol-pill-score">${Math.round(score)}</div>
+          <div class="vol-pill-label">${h(s.volatility_label)}</div>
+        </div>
+      </div>
+      <div class="snapshot-grid">${tiles}</div>
+      <div class="snapshot-plain">
+        <div class="snapshot-plain-label">What this means</div>
+        <ul>${bullets}</ul>
+      </div>
+    `;
+  }
+
+  // ── Extraction ───────────────────────────────────────────
+  function renderExtraction(e) {
+    const vars = e.variables || {};
+    const varTile = (label, val, prefix, suffix) => {
+      const fmt = fmtNum(val, prefix, suffix);
+      return `<div class="var-tile">
+        <div class="var-tile-label">${label}</div>
+        <div class="var-tile-value ${fmt === null ? 'null-val' : ''}">${fmt !== null ? h(fmt) : 'Not provided'}</div>
+      </div>`;
+    };
+
+    document.getElementById('rb-extraction').innerHTML = `
+      <div class="meta-chips">
+        <span class="badge badge-accent">${h(e.decision_type)}</span>
+        ${e.time_horizon_months ? `<span class="badge badge-neutral">${h(String(e.time_horizon_months))} month horizon</span>` : ''}
+      </div>
+      <p class="goal-text">${h(e.declared_goal)}</p>
+      <div class="vars-grid">
+        ${varTile('Monthly Expenses', vars.monthly_burn, '$', '/mo')}
+        ${varTile('Financial Runway', vars.runway_months, '', ' months')}
+        ${varTile('Income Change', vars.income_delta, '$', '/yr')}
+      </div>
+      ${renderLabeledList('Constraints', e.constraints)}
+      ${renderLabeledList('Assumptions', e.assumptions_made_explicit)}
+      ${renderLabeledList('Unknowns', e.unknowns, 'warn')}
+      ${renderLabeledList('Questions to Clarify', e.questions_to_clarify, 'action')}
+    `;
+  }
+
+  // ── Trade-off ────────────────────────────────────────────
+  function renderTradeoff(t) {
+    const dims = (t.dimensions || []).map(d => `
+      <div class="dimension-item">
+        <div class="dim-header"><strong>${h(d.name)}</strong><span class="wt">${Math.round((d.weight || 0) * 100)}%</span></div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${(d.weight || 0) * 100}%"></div></div>
+        <div class="dim-notes">${h(d.notes || '')}</div>
+      </div>`).join('');
+
+    const options = (t.options || []).map(o => {
+      const scores = Object.entries(o.dimension_scores || {}).map(([k, v]) => `
+        <div class="score-row">
+          <span class="sr-label">${h(k)}</span>
+          <div class="score-bg"><div class="score-fill" style="width:${(v / 10) * 100}%"></div></div>
+          <span class="sr-num">${v}/10</span>
+        </div>`).join('');
+      return `
+        <div class="option-card">
+          <h4>${h(o.option_name)}</h4>
+          ${renderLabeledList('Pros', o.pros, 'pros')}
+          ${renderLabeledList('Cons', o.cons, 'cons')}
+          <div class="section-label" style="margin-top:16px;">Dimension Scores</div>${scores}
+          <p class="option-summary">${h(o.summary || '')}</p>
+        </div>`;
+    }).join('');
+
+    document.getElementById('rb-tradeoff').innerHTML = `
+      <div class="section-label">Dimensions</div>
+      <div>${dims}</div>
+      <div class="section-label">Options</div>
+      <div class="options-grid">${options}</div>
+      ${renderLabeledList('Opportunity Costs', t.opportunity_costs)}
+      <div class="rec-note">${h(t.recommendation_style_note || '')}</div>
+    `;
+  }
+
+  // ── Volatility ───────────────────────────────────────────
+  function renderVolatility(v) {
+    const score  = v.volatility_score_0_to_100 || 0;
+    const tier   = volTier(score);
+    const labels = { low: 'Low instability', medium: 'Moderate instability', high: 'High instability' };
+
+    const contras = (v.contradictions || []).map(c => `
+      <div class="contra-block">
+        <div class="contra-stmts">
+          <div class="cs-a">"${h(c.statement_a)}"</div>
+          <div class="cs-b">"${h(c.statement_b)}"</div>
+        </div>
+        <div class="contra-why">${h(c.why_it_matters)}</div>
+      </div>`).join('');
+
+    const humanItems = (v.human_must_decide || []).map(item => `
+      <div class="human-item">
+        <div class="hi-decision">${h(item.decision)}</div>
+        <div class="hi-why">${h(item.why_human)}</div>
+      </div>`).join('');
+
+    document.getElementById('rb-volatility').innerHTML = `
+      <div class="vol-header">
+        <div class="vol-circle ${tier}">
+          <div class="vc-num">${Math.round(score)}</div>
+          <div class="vc-sub">/ 100</div>
+        </div>
+        <div class="vol-bar-wrap">
+          <div class="vol-bar-label">${labels[tier]}</div>
+          <div class="vol-bar-bg"><div class="vol-bar-fill ${tier}" style="width:${score}%"></div></div>
+        </div>
+      </div>
+      <p class="vol-humanize">Volatility reflects internal tension and assumption risk — not emotional weakness.</p>
+
+      <div class="bias-section-header">
+        <div class="section-label">Detected Patterns</div>
+        <button class="toggle-view-btn" onclick="toggleBiasView(this)" id="bias-toggle-btn">Show analyst terms</button>
+      </div>
+      <div id="bias-human-view" class="bias-cloud">
+        ${(v.detected_biases_human || []).map(b => `<span class="bias-tag" title="${h(b.name)}">${h(b.plain_language)}</span>`).join('')}
+      </div>
+      <div id="bias-raw-view" class="bias-cloud" style="display:none;">
+        ${(v.detected_biases || []).map(b => `<span class="bias-tag">${h(b)}</span>`).join('')}
+      </div>
+
+      ${contras ? `<div class="section-label">Contradictions</div>${contras}` : ''}
+      ${renderLabeledList('Pressure Signals', v.pressure_signals, 'warn')}
+      ${renderLabeledList('Stabilizing Moves', v.stabilizing_moves, 'action')}
+      ${humanItems ? `<div class="section-label">Where Human Judgment Is Required</div>${humanItems}` : ''}
+    `;
+  }
+
+  function toggleBiasView(btn) {
+    biasViewRaw = !biasViewRaw;
+    document.getElementById('bias-human-view').style.display = biasViewRaw ? 'none' : 'flex';
+    document.getElementById('bias-raw-view').style.display   = biasViewRaw ? 'flex' : 'none';
+    btn.textContent = biasViewRaw ? 'Show plain language' : 'Show analyst terms';
+  }
+
+  // ── Scenarios ────────────────────────────────────────────
+  function renderScenarios(s) {
+    const card = (type, data, cls) => `
+      <div class="scenario-card ${cls}">
+        <h4>${type}</h4>
+        ${renderLabeledList('Assumptions', data.assumptions)}
+        <div class="sf"><strong>Runway Impact</strong><p>${h(data.runway_impact || '')}</p></div>
+        <div class="sf"><strong>Trajectory Impact</strong><p>${h(data.trajectory_impact || '')}</p></div>
+        ${renderLabeledList('Primary Risks', data.primary_risks, 'cons')}
+        <div class="breaks-box"><strong>What Breaks First</strong>${h(data.what_breaks_first || '')}</div>
+      </div>`;
+
+    document.getElementById('rb-scenarios').innerHTML = `
+      <div class="scenarios-grid">
+        ${card('Conservative', s.conservative, 'conservative')}
+        ${card('Base', s.base, 'base')}
+        ${card('Optimistic', s.optimistic, 'optimistic')}
+      </div>`;
+  }
+
+  // ── Inline Gate ──────────────────────────────────────────
+  function renderGateInline(g) {
+    const limitFmt = fmtNum(g.user_declared_downside_limit, '$', '');
+    document.getElementById('rb-gate-inline').innerHTML = `
+      <div class="gate-inline-title">Finalization Required</div>
+      <div class="gate-inline-sub">To finalize this decision context, confirm your risk declaration. Axis does not make final decisions.</div>
+      <div class="gate-meta">
+        <span>Risk tolerance: <strong>${h(g.user_declared_risk_tolerance)}</strong></span>
+        ${limitFmt ? `<span>Maximum acceptable loss: <strong>${h(limitFmt)}</strong></span>` : ''}
+      </div>
+      <p class="gate-stop-note">${h(g.ai_must_stop_reason)}</p>
+      <div class="gate-confirm-row">
+        <input type="checkbox" id="gate-confirm-checkbox" onchange="confirmGate(this)">
+        <label for="gate-confirm-checkbox">I confirm my risk declaration and understand AI must stop here.</label>
+      </div>
+      <div class="gate-confirmed-note" id="gate-confirmed-note">Confirmed. Final summary is now available below.</div>
+    `;
+  }
+
+  function confirmGate(checkbox) {
+    const confirmed = checkbox.checked;
+    if (currentLog) currentLog.decision_log.human_boundary_gate.confirmed_by_user = confirmed;
+    document.getElementById('rc-summary').style.display = confirmed ? 'block' : 'none';
+    document.getElementById('gate-confirmed-note').style.display = confirmed ? 'block' : 'none';
+    if (confirmed) {
+      document.getElementById('rc-summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  // ── Final Summary ────────────────────────────────────────
+  function renderSummary(f) {
+    document.getElementById('rb-summary').innerHTML = `
+      <div class="action-box">
+        <strong>What you can do now</strong>
+        ${renderList(f.what_human_can_do_now, 'action')}
+      </div>
+      ${renderLabeledList('What AI contributed', f.what_ai_is_responsible_for)}
+      ${renderLabeledList('Where AI stops', f.where_ai_must_stop, 'warn')}
+      ${renderLabeledList('What breaks at scale', f.what_breaks_at_scale_first, 'cons')}
+    `;
+    // Open by default once revealed
+    const body = document.getElementById('rb-summary');
+    const icon = document.getElementById('ti-summary');
+    body.style.display = 'block';
+    icon.classList.add('open');
+  }
+
+  // ── Drift ────────────────────────────────────────────────
+  function renderDrift(d) {
+    const rows = (d.changes || []).map(c => `
+      <tr>
+        <td style="font-family:var(--mono);font-size:12px;">${h(c.field)}</td>
+        <td>${h(JSON.stringify(c.before))}</td>
+        <td>${h(JSON.stringify(c.after))}</td>
+        <td style="color:var(--text-2);">${h(c.risk)}</td>
+      </tr>`).join('');
+
+    document.getElementById('rb-drift').innerHTML = `
+      <div class="drift-indicator ${d.drift_detected ? 'yes' : 'no'}">
+        ${d.drift_detected ? '↕ Drift detected' : '— No significant drift'}
+      </div>
+      ${rows ? `
+        <div class="section-label">Changes</div>
+        <table class="drift-table">
+          <thead><tr><th>Field</th><th>Before</th><th>After</th><th>Signal</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>` : ''}
+      <div class="drift-stat">
+        <div class="drift-stat-item"><strong>Risk Tolerance</strong><p>${h(d.risk_tolerance_shift || '')}</p></div>
+        <div class="drift-stat-item"><strong>Volatility</strong><p>${h(d.volatility_shift || '')}</p></div>
+      </div>
+      ${renderLabeledList('Value Weight Shift', d.value_weight_shift)}
+      ${renderLabeledList('New Contradictions', d.new_contradictions, 'warn')}
+      ${renderLabeledList('Stabilization Advice', d.stabilization_advice, 'action')}
+    `;
+  }
+
+  // ── Export full log ──────────────────────────────────────
+  function exportLog() {
+    if (!currentLog) return;
+    const json = JSON.stringify(currentLog.decision_log, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `axis_decision_log_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Export readable summary ──────────────────────────────
+  function exportReadable() {
+    if (!currentLog) return;
+    const log = currentLog.decision_log;
+    const readable = {
+      meta: log.meta,
+      input: log.input,
+      executive_snapshot: log.executive_snapshot,
+      human_boundary_gate: log.human_boundary_gate,
+      final_summary: log.final_summary,
+    };
+    const json = JSON.stringify(readable, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `axis_summary_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Export markdown summary ──────────────────────────────
+  function exportMarkdown() {
+    if (!currentLog) return;
+    const log  = currentLog.decision_log;
+    const s    = log.executive_snapshot;
+    const g    = log.human_boundary_gate;
+    const f    = log.final_summary;
+    const meta = log.meta;
+    const date = (meta.created_at || '').split('T')[0] || new Date().toISOString().split('T')[0];
+    const limitFmt = g.user_declared_downside_limit
+      ? `$${Number(g.user_declared_downside_limit).toLocaleString()}`
+      : 'Not specified';
+    const bullets = items => (items || []).map(i => `- ${i}`).join('\n');
+
+    const md = [
+      `# Axis Decision Summary`,
+      `*${meta.disclaimer}*`,
+      ``,
+      `**Date:** ${date}`,
+      `**Model:** ${meta.model}`,
+      ``,
+      `---`,
+      ``,
+      `## Decision Context`,
+      ``,
+      log.input.decision_narrative,
+      ``,
+      `---`,
+      ``,
+      `## Executive Snapshot`,
+      ``,
+      `**Volatility:** ${Math.round(s.volatility_score)} — ${s.volatility_label}`,
+      ``,
+      `**Primary Tension:** ${s.primary_tension}`,
+      ``,
+      `**Highest Optionality Path:** ${s.highest_optionality_path}`,
+      ``,
+      `**Most Dangerous Assumption:** ${s.most_dangerous_assumption}`,
+      ``,
+      `**What Breaks First:** ${s.what_breaks_first}`,
+      ``,
+      `### What This Means`,
+      ``,
+      bullets(s.what_this_means_in_plain_language),
+      ``,
+      `---`,
+      ``,
+      `## Risk Declaration`,
+      ``,
+      `- Risk tolerance: ${g.user_declared_risk_tolerance}`,
+      `- Maximum acceptable loss: ${limitFmt}`,
+      ``,
+      `---`,
+      ``,
+      `## Final Summary`,
+      ``,
+      `### What You Can Do Now`,
+      ``,
+      bullets(f.what_human_can_do_now),
+      ``,
+      `### Where AI Stops`,
+      ``,
+      bullets(f.where_ai_must_stop),
+      ``,
+      `### What Breaks at Scale`,
+      ``,
+      bullets(f.what_breaks_at_scale_first),
+      ``,
+      `---`,
+      ``,
+      `*Axis does not make final decisions. All final judgment belongs to you.*`,
+    ].join('\n');
+
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `axis_summary_${date}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Sample prior log ─────────────────────────────────────
+  function downloadSamplePrior() {
+    const a = document.createElement('a');
+    a.href = '/api/sample_prior';
+    a.download = 'axis_sample_prior_log.json';
+    a.click();
+  }
+
+  // ── Reset ────────────────────────────────────────────────
+  function resetForm() {
+    currentLog = null;
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('form-section').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Export dropdown ──────────────────────────────────────
+  function toggleExportDropdown(e) {
+    e.stopPropagation();
+    const dd = document.getElementById('export-dropdown');
+    dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+  }
+
+  document.addEventListener('click', () => {
+    const dd = document.getElementById('export-dropdown');
+    if (dd) dd.style.display = 'none';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const dd = document.getElementById('export-dropdown');
+      if (dd) dd.style.display = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>

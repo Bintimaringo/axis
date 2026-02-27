@@ -1,0 +1,222 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "created_at": "2025-08-15T14:23:00Z",
+    "system_name": "Axis",
+    "model": "claude-sonnet-4-6",
+    "disclaimer": "Not financial advice. Decision support only."
+  },
+  "input": {
+    "decision_narrative": "I'm considering leaving my stable $140,000/year product manager role to join a seed-stage startup as Head of Product at $95,000 + 0.75% equity. I have $45,000 in savings, monthly expenses around $4,200, and no dependents. The startup has about 8 months of runway left and a Series A term sheet reportedly in conversation. I'm excited about the mission but scared about the income drop.",
+    "provided_fields": {
+      "monthly_burn": 4200,
+      "runway_months": 8,
+      "income_delta": -45000
+    }
+  },
+  "extraction": {
+    "decision_type": "Career Transition",
+    "time_horizon_months": 18,
+    "declared_goal": "Transition to a high-upside, mission-aligned startup role while managing the financial downside of a significant income reduction",
+    "constraints": [
+      "Monthly expenses of $4,200 with $45,000 savings buffer",
+      "Income reduction of $45,000/year (from $140k to $95k)",
+      "Startup has only 8 months runway — Series A not yet closed",
+      "No dependents, but sole income earner"
+    ],
+    "assumptions_made_explicit": [
+      "Series A term sheet will convert to actual funding",
+      "Current savings can bridge a gap period if needed",
+      "Mission alignment makes the financial tradeoff worthwhile",
+      "0.75% equity has meaningful upside potential"
+    ],
+    "variables": {
+      "monthly_burn": 4200,
+      "runway_months": 8,
+      "income_delta": -45000,
+      "liquidity_need_months": 10
+    },
+    "unknowns": [
+      "Timeline for Series A to close",
+      "Probability of Series A succeeding",
+      "Equity vesting schedule and cliff terms",
+      "Post-Series A salary adjustment possibility",
+      "Startup's actual monthly burn rate"
+    ],
+    "questions_to_clarify": [
+      "What is the expected timeline for the Series A to close, and what are the terms?",
+      "What happens to your equity if the startup is acquired before Series A closes?",
+      "Is there a salary review clause tied to funding milestones?",
+      "What is your minimum acceptable financial floor — the number below which you cannot go?",
+      "Do you have a non-compete or garden leave clause in your current contract?"
+    ]
+  },
+  "tradeoff_model": {
+    "dimensions": [
+      {"name": "Stability", "weight": 0.30, "notes": "Current role offers high financial stability; startup carries meaningful runway and income risk"},
+      {"name": "Upside", "weight": 0.35, "notes": "Equity is the primary driver — 0.75% at early stage has real upside if company scales"},
+      {"name": "Trajectory Alignment", "weight": 0.25, "notes": "Mission alignment is explicitly named as important to the decision-maker"},
+      {"name": "Optionality", "weight": 0.10, "notes": "Head of Product title builds career capital; startup experience opens future doors even if it fails"}
+    ],
+    "options": [
+      {
+        "option_name": "Take Startup Role",
+        "pros": [
+          "0.75% equity with compounding upside at early stage",
+          "Mission-aligned work likely to increase engagement and output quality",
+          "Head of Product title accelerates leadership trajectory",
+          "First-mover advantage in a potentially high-growth company"
+        ],
+        "cons": [
+          "$45,000/year income reduction immediately",
+          "Only 8 months startup runway — Series A uncertainty is real",
+          "Financial exposure if Series A fails and job search takes 3+ months",
+          "Benefits, stability, and predictable income forfeited"
+        ],
+        "dimension_scores": {
+          "Stability": 3,
+          "Upside": 8,
+          "Trajectory Alignment": 9,
+          "Optionality": 6
+        },
+        "summary": "High upside, high risk. Viable if Series A closes within 6 months and personal financial runway extends past 10 months."
+      },
+      {
+        "option_name": "Stay in Current Role",
+        "pros": [
+          "Financial security at $140,000/year",
+          "Known environment with established relationships and credibility",
+          "Option to revisit startup after Series A closes — lower risk entry point"
+        ],
+        "cons": [
+          "Mission misalignment likely compounds over time",
+          "Potential career stagnation at current title",
+          "Forfeits early-stage equity window"
+        ],
+        "dimension_scores": {
+          "Stability": 9,
+          "Upside": 3,
+          "Trajectory Alignment": 4,
+          "Optionality": 7
+        },
+        "summary": "Safe, low-upside choice. Most rational if Series A uncertainty remains unresolved beyond 60 days."
+      }
+    ],
+    "opportunity_costs": [
+      "Forfeiting 0.75% equity if startup succeeds after declining the offer",
+      "Continued mission misalignment incurs ongoing motivation and energy cost",
+      "Each month at current role delays Head of Product career trajectory by at least one month"
+    ],
+    "recommendation_style_note": "This is structured trade-off modeling, not financial advice. All decision rights remain with the user."
+  },
+  "volatility_report": {
+    "volatility_score_0_to_100": 68,
+    "detected_biases": [
+      "FOMO (fear of missing out): Framing of excitement suggests the offer deadline is creating artificial urgency that may be inflating perceived upside",
+      "Optimism bias: Assuming the Series A term sheet will convert without stress-testing that assumption",
+      "Loss aversion asymmetry: Framing the income reduction as a 'loss' rather than as a deliberate investment in equity"
+    ],
+    "contradictions": [
+      {
+        "statement_a": "I'm scared about the income drop",
+        "statement_b": "The startup has only 8 months runway",
+        "why_it_matters": "The stated fear is about the salary gap, but the actual financial risk is not the $45k drop — it is the possibility of zero income in 8 months if the startup fails and a job search takes time."
+      }
+    ],
+    "pressure_signals": [
+      "Excitement-anxiety pairing in the narrative suggests an external deadline is compressing decision time",
+      "The offer itself creates artificial scarcity — the window feels like it will close",
+      "Mission-language ('excited about the mission') may be softening rational financial risk assessment"
+    ],
+    "stabilizing_moves": [
+      "Request the full equity term sheet before deciding — vesting cliff, acceleration, dilution protection",
+      "Calculate personal runway explicitly: $45,000 savings ÷ $4,200 burn = 10.7 months personal runway",
+      "Set a written decision criterion: 'I will only accept this role if Series A closes or provides a signed term sheet within X weeks'",
+      "Have one conversation with someone who has been through an early-stage startup failure for calibration"
+    ],
+    "human_must_decide": [
+      {
+        "decision": "Is the mission worth the financial risk at this specific point in your life?",
+        "why_human": "Values alignment between financial security and meaning cannot be optimized by a system — this is a deeply personal tradeoff that depends on context only you hold."
+      },
+      {
+        "decision": "What is your true minimum financial floor — the point of real psychological distress?",
+        "why_human": "Only you can define the boundary between acceptable financial stress and destabilizing risk. This number governs everything else."
+      }
+    ]
+  },
+  "scenario_simulation": {
+    "conservative": {
+      "assumptions": [
+        "Series A takes 12+ months or falls through entirely",
+        "Startup exhausts runway by month 9",
+        "Job search after startup failure takes 3–4 months"
+      ],
+      "runway_impact": "Personal runway of 10.7 months means savings would be depleted approximately 1–2 months after startup fails if job search is slow",
+      "trajectory_impact": "Head of Product title is gained; however, startup failure narrative requires careful positioning in next job search — frames as 'early-stage experience' not failure",
+      "primary_risks": [
+        "Personal savings fully depleted within 12–13 months",
+        "Job search conducted from a position of financial pressure, reducing leverage",
+        "Emotional cost of startup failure compounds financial stress"
+      ],
+      "what_breaks_first": "Personal financial cushion — savings hit zero approximately 11–13 months after joining if startup closes and job search extends past 3 months"
+    },
+    "base": {
+      "assumptions": [
+        "Series A closes within 5–6 months",
+        "Salary adjusts toward market rate post-funding (partial correction)",
+        "Startup achieves early product-market signals in 18–24 months"
+      ],
+      "runway_impact": "Series A funding provides a financial bridge; personal savings remain partially intact as emergency buffer after funding closes",
+      "trajectory_impact": "Head of Product at funded startup is strong career capital; trajectory accelerates meaningfully if company scales to Series B",
+      "primary_risks": [
+        "Series A terms may dilute equity significantly from the seed-stage percentage",
+        "Post-funding culture shift may reduce autonomy that made the role attractive",
+        "Income gap period (months 1–6) requires disciplined spending to preserve buffer"
+      ],
+      "what_breaks_first": "Morale and motivation if Series A process drags past 6 months without clear progress signals — ambiguity at that duration becomes corrosive"
+    },
+    "optimistic": {
+      "assumptions": [
+        "Series A closes within 3 months at a strong valuation",
+        "Equity vesting proceeds without disruption",
+        "Company reaches Series B within 24 months with meaningful valuation step-up"
+      ],
+      "runway_impact": "Financial pressure resolves quickly; salary correction to $120–130k post-Series A likely; personal savings preserved",
+      "trajectory_impact": "Early-stage Head of Product with demonstrable scaling story creates strong positioning for VP Product or CPO roles within 3–4 years",
+      "primary_risks": [
+        "Lifestyle inflation post-funding can erode the financial discipline built during the sacrifice period",
+        "Company success at speed brings its own complexity — political dynamics emerge with new investors and leadership hires"
+      ],
+      "what_breaks_first": "Work-life boundaries — rapid scaling at this stage historically demands personal bandwidth that is hard to protect"
+    }
+  },
+  "human_boundary_gate": {
+    "required": true,
+    "user_declared_risk_tolerance": "Medium",
+    "user_declared_downside_limit": 45000,
+    "ai_must_stop_reason": "AI systems must not make final financial decisions for humans. This analysis is a structured thinking tool, not a recommendation. All final decisions require human judgment.",
+    "confirmed_by_user": true
+  },
+  "final_summary": {
+    "what_human_can_do_now": "Before deciding, request the full equity term sheet and calculate your exact personal runway in writing — $45k ÷ $4,200 = 10.7 months. Set a written decision criterion that names the specific milestone (e.g. 'Series A signed by [date]') that would need to be true for you to feel confident proceeding. That criterion should be written before you feel pressure to respond.",
+    "what_ai_is_responsible_for": [
+      "Extracted and organized the key financial variables from the narrative",
+      "Built a structured trade-off model across four dimensions with weighted scoring",
+      "Identified three cognitive biases likely affecting the framing of this decision",
+      "Simulated three scenarios grounded in the provided numeric context",
+      "Identified the specific decisions that require human judgment and cannot be delegated"
+    ],
+    "where_ai_must_stop": [
+      "Deciding whether mission alignment is worth the financial risk to this specific person at this point in their life",
+      "Assessing the psychological tolerance for financial uncertainty — only the individual holds that data",
+      "Evaluating the quality of the founding team and the likelihood of Series A success",
+      "Making predictions about startup survival probability or equity outcomes"
+    ],
+    "what_breaks_at_scale_first": [
+      "If Series A fails: personal financial stability collapses within 12 months without external income or credit intervention",
+      "If Series A succeeds: the 0.75% equity percentage will be diluted in subsequent funding rounds — the number you are weighing today will be smaller at exit",
+      "At startup scale: the Head of Product role as currently described will not exist in 18 months — the job you accept will transform significantly as the company grows"
+    ]
+  }
+}
