@@ -112,3 +112,10 @@ axis/
 - No authentication required
 - The only external calls made are to the Anthropic API with the text you submit
 - Decision logs exist only in your browser or downloads — never on our servers
+
+---
+
+## About the builder
+
+**Years of hands-on AI experience:** 2 years
+**Salary expectation:** $150,000 – $195,000 CAD
