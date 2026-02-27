@@ -60,7 +60,7 @@ Open [http://localhost:8000](http://localhost:8000).
 3. **Declare your risk tolerance** — check the box, select a level, and set a downside limit. If you don't confirm, the analysis still runs but the Human Boundary Gate will flag "AI must stop here."
 4. **Optionally upload a prior decision log** — drag in a previous Axis JSON export to get a drift comparison.
 5. **Click Analyze** — 5–6 API calls run (~30–60 seconds).
-6. **Export** — download your decision log as JSON for your records.
+6. **Export** — download as Decision Summary (JSON), Full Decision Log (JSON), or Markdown (.md).
 
 ### Longitudinal tracking
 
@@ -103,7 +103,7 @@ axis/
 
 ---
 
-## DecisionLog schema version: 1.0
+## DecisionLog schema version: 1.1
 
 The exported JSON conforms to the schema defined in `app/models.py`. Fields:
 
