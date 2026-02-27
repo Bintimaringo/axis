@@ -42,7 +42,7 @@ Axis takes a high-stakes financial decision narrative and runs it through a stru
 - Acting on the analysis in any way
 - Replacing the Human Boundary Gate with a recommendation
 
-The `HumanBoundaryGate` is not a disclaimer. It is load-bearing. The system is designed so the AI's output cannot be mistaken for a decision.
+The `HumanBoundaryGate` is not a disclaimer. It is load-bearing. The Final Summary section is literally hidden until the user confirms their risk declaration — the gate is enforced in the UI, not just implied by it.
 
 ---
 
