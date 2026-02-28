@@ -150,10 +150,7 @@ async def analyze(
         required=True,
         user_declared_risk_tolerance=risk_tolerance_level,
         user_declared_downside_limit=downside_limit,
-        ai_must_stop_reason=(
-            "Axis does not make final decisions. "
-            "All final judgment belongs to you."
-        ),
+        ai_must_stop_reason="All final judgment belongs to you.",
         confirmed_by_user=False,  # always false until user confirms in UI
     )
 
