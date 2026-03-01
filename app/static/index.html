@@ -1169,8 +1169,8 @@
         <strong>What you can do now</strong>
         ${renderList(f.what_human_can_do_now, 'action')}
       </div>
-      ${renderLabeledList('What AI contributed', f.what_ai_is_responsible_for)}
-      ${renderLabeledList('Where AI stops', f.where_ai_must_stop, 'warn')}
+      ${renderLabeledList('What Axis contributed', f.what_ai_is_responsible_for)}
+      ${renderLabeledList('Where Axis stops', f.where_ai_must_stop, 'warn')}
       ${renderLabeledList('What breaks at scale', f.what_breaks_at_scale_first, 'cons')}
     `;
     // Open by default once revealed
@@ -1304,7 +1304,7 @@
       ``,
       bullets(f.what_human_can_do_now),
       ``,
-      `### Where AI Stops`,
+      `### Where Axis Stops`,
       ``,
       bullets(f.where_ai_must_stop),
       ``,
