@@ -118,4 +118,4 @@ axis/
 ## About the builder
 
 **Years of hands-on AI experience:** 2 years
-**Salary expectation:** $150,000 – $195,000 CAD
+**Salary expectation:** $149,000 – $199,000 CAD
